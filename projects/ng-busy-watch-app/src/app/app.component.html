@@ -1,0 +1,174 @@
+<a href="https://github.com/yiqu/ng-busy-watch" class="float-right">
+  <img loading="lazy" width="149" height="149"
+  src="https://github.blog/wp-content/uploads/2008/12/forkme_right_green_007200.png?resize=149%2C149"
+  class="attachment-full size-full " alt="Fork me on GitHub" data-recalc-dims="1">
+</a>
+<div class="container py-5">
+  <div fxLayout="column" fxLayoutAlign="start center" fxLayoutGap="3rem">
+    <section>
+      <div class="title">
+        Using ngBusyWatch with div
+      </div>
+      <div>
+        <div *ngBusyWatch="busy$">
+          <div class="example0" >
+            Cool content...
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="title">
+        Using ngBusyWatch with a plain old div with set height and width
+      </div>
+      <div>
+        <div *ngBusyWatch="busy$">
+          <div class="example1" >
+            Cool content...
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="title">
+        Using ngBusyWatch with HTML table
+      </div>
+      <div>
+        <div *ngBusyWatch="busy$">
+          <table class="plain">
+            <tr>
+              <th>Company</th>
+              <th>Contact</th>
+              <th>Country</th>
+            </tr>
+            <tr>
+              <td>Alfreds Futterkiste</td>
+              <td>Maria Anders</td>
+              <td>Germany</td>
+            </tr>
+            <tr>
+              <td>Centro comercial Moctezuma</td>
+              <td>Francisco Chang</td>
+              <td>Mexico</td>
+            </tr>
+            <tr>
+              <td>Ernst Handel</td>
+              <td>Roland Mendel</td>
+              <td>Austria</td>
+            </tr>
+            <tr>
+              <td>Island Trading</td>
+              <td>Helen Bennett</td>
+              <td>UK</td>
+            </tr>
+            <tr>
+              <td>Laughing Bacchus Winecellars</td>
+              <td>Yoshi Tannamuri</td>
+              <td>Canada</td>
+            </tr>
+            <tr>
+              <td>Magazzini Alimentari Riuniti</td>
+              <td>Giovanni Rovelli</td>
+              <td>Italy</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="title">
+        Using ngBusyWatch with Material table
+      </div>
+      <div class="example2">
+        <div *ngBusyWatch="busy$">
+          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+            <!-- Position Column -->
+            <ng-container matColumnDef="position">
+              <th mat-header-cell *matHeaderCellDef> No. </th>
+              <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+            </ng-container>
+
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef> Name </th>
+              <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+            </ng-container>
+
+            <!-- Weight Column -->
+            <ng-container matColumnDef="weight">
+              <th mat-header-cell *matHeaderCellDef> Weight </th>
+              <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
+            </ng-container>
+
+            <!-- Symbol Column -->
+            <ng-container matColumnDef="symbol">
+              <th mat-header-cell *matHeaderCellDef> Symbol </th>
+              <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <section>
+      <div class="title">
+        Using ngBusyWatch with Material tabs
+      </div>
+      <div>
+        <div>
+          <mat-tab-group>
+            <mat-tab label="Tab 1">
+              <div class="example-small-box mat-elevation-z4">
+                <div *ngBusyWatch="busy$">
+                  Tab 1
+                </div>
+              </div>
+            </mat-tab>
+            <mat-tab label="Tab 2">
+              <div class="example-large-box mat-elevation-z4">
+                <div *ngBusyWatch="busy$">
+                 Tab 2
+                </div>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="title">
+        Using ngBusyWatch with Material expansion panel
+      </div>
+      <div>
+        <div>
+          <mat-accordion>
+            <mat-expansion-panel hideToggle>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Click to open panel
+                </mat-panel-title>
+                <mat-panel-description>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              <div>
+                <div *ngBusyWatch="busy$">
+                  This is the primary content of the panel.
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </div>
+      </div>
+    </section>
+
+
+  </div>
+</div>

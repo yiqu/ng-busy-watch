@@ -1,0 +1,76 @@
+.container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+.graphics {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: flex;
+}
+
+.text {
+  text-align: center;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.load-text {
+  text-align: center;
+  color: #555;
+}
+
+.lds-load {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 40px;
+}
+
+.lds-load div {
+  display: inline-block;
+  position: absolute;
+  left: 8px;
+  width: 16px;
+  background: #bbb;
+  animation: lds-load 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+}
+
+.lds-load div:nth-child(1) {
+  left: 8px;
+  animation-delay: -0.24s;
+}
+
+.lds-load div:nth-child(2) {
+  left: 32px;
+  animation-delay: -0.12s;
+}
+
+.lds-load div:nth-child(3) {
+  left: 56px;
+  animation-delay: 0s;
+}
+
+@keyframes lds-load {
+  0% {
+    top: 5px;
+    height: 35px;
+  }
+  50%,
+  100% {
+    top: 15px;
+    height: 15px;
+  }
+}

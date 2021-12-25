@@ -1,0 +1,35 @@
+language: node_js
+node_js:
+  - stable # Use stable version of node
+
+branches:
+  only:
+    - master # Only build master branch
+  except:
+    - gh-pages # Do not ever build off gh-pages branch
+
+before_script:
+  - npm install -g @angular/cli #install angular CLI
+
+script:
+  - echo "Building for PROD"
+  - echo "Using node legacy openssl provider"
+  - export NODE_OPTIONS=--openssl-legacy-provider
+  - ng build ng-busy-watch
+  - ng build ng-busy-watch-app --base-href=/ng-busy-watch/
+
+after_success:
+  - echo "Build SUCCESS!!!"
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  keep-history: true
+  on:
+    branch: master
+  local_dir: dist/ng-busy-watch-app/  # Only copy the /dist/siling1k contents (Angular > 6).
+
+after_deploy:
+  - echo "Deployed to GH Pages!!!"
+  #- node update-version.js

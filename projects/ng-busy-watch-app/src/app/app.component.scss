@@ -1,0 +1,49 @@
+section {
+  border: 1px solid #e9e9e9;
+  padding: 40px;
+  border-radius: 30px;
+
+  .title {
+    margin-bottom: 10px;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 21px;
+  }
+}
+
+div.example1 {
+  height: 5rem;
+  background-color:#8686cd;
+  color: #fff;
+}
+
+div.example0 {
+  background-color:green;
+}
+
+div.example2 {
+  width: 50rem;
+}
+
+table {
+  width: 100%;
+}
+
+table.plain {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  }
+}
+
+.mat-form-field + .mat-form-field {
+  margin-left: 8px;
+}
