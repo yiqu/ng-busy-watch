@@ -9,6 +9,7 @@ import {
   OnDestroy,
   OnInit,
   Renderer2,
+  SimpleChanges,
   TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
@@ -22,7 +23,7 @@ import { isObject } from './ng-busy-watch.utils';
 @Directive({
   selector: `[ngBusyWatch]`,
 })
-export class NgBusyWatchDirective implements OnChanges, OnDestroy {
+export class NgBusyWatchDirective implements OnChanges, OnDestroy, OnInit {
 
   @Input('ngBusyWatch')
   busyIndicator?: Observable<any> | boolean | IBusyConfigInput;
@@ -34,14 +35,14 @@ export class NgBusyWatchDirective implements OnChanges, OnDestroy {
   changes$?: Observable<any>;
   compDest$: Subject<void> = new Subject<void>();
 
-  hostElement: HTMLElement;
-  parentElement: HTMLElement | null;
+  hostElement?: HTMLElement | null;
+  parentElement?: HTMLElement | null;
 
   parentOriginalDisplayStyle: string | undefined;
-  hostOriginalRowStart: any;
-  hostOriginalRowEnd: any;
-  hostOriginalColumnStart: any;
-  hostOriginalColumnEnd: any;
+  hostOriginalRowStart?: string | number;
+  hostOriginalRowEnd?: string | number;
+  hostOriginalColumnStart?: string | number;
+  hostOriginalColumnEnd?: string | number;
 
   constructor(private renderer: Renderer2, private templateRef: TemplateRef<any>, private vcr: ViewContainerRef,
     private bs: NgBusyWatchService) {
@@ -52,19 +53,15 @@ export class NgBusyWatchDirective implements OnChanges, OnDestroy {
     this.saveHostGridStyle(this.hostElement);
   }
 
-  ngOnChanges() {
+  ngOnInit() {
     this.bs.resetBusyConfig();
     this.compDest$.next();
 
     if (isObservable(this.busyIndicator)) {
-      this.changes$ = (this.busyIndicator as Observable<any>).pipe(
-        takeUntil(this.compDest$)
-      );
+      this.changes$ = (this.busyIndicator as Observable<any>);
     } else if (isObject(this.busyIndicator)) {
       if (isObservable((this.busyIndicator as IBusyConfigInput).busy)) {
-        this.changes$ = ((this.busyIndicator as IBusyConfigInput).busy as Observable<any>).pipe(
-          takeUntil(this.compDest$)
-        );
+        this.changes$ = ((this.busyIndicator as IBusyConfigInput).busy as Observable<any>);
       } else {
         const val = !!((this.busyIndicator as IBusyConfigInput).busy);
         this.changes$ = new BehaviorSubject(val).asObservable();
@@ -75,23 +72,48 @@ export class NgBusyWatchDirective implements OnChanges, OnDestroy {
       this.changes$ = new BehaviorSubject(val).asObservable();
     }
 
-    if (this.changes$) {
-      this.main(this.changes$);
+    this.main(this.changes$);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const currentVal: boolean | IBusyConfigInput = changes['busyIndicator'].currentValue;
+    let booleanValue: boolean = false;
+    let type: boolean | IBusyConfigInput | Observable<any>;
+
+    if (isObject(currentVal)) {
+      type = (currentVal as IBusyConfigInput).busy;
+      booleanValue = !!((currentVal as IBusyConfigInput).busy);
+      this.customConfig = (currentVal as IBusyConfigInput);
+    } else {
+      type = currentVal;
+      booleanValue = !!currentVal;
+    }
+
+    if (!isObservable(type)) {
+      if (booleanValue) {
+        this.addOverlay();
+      } else {
+        this.removeOverlay();
+      }
     }
   }
 
-  main(changes: Observable<any>) {
-    changes.pipe(
+  main(changes: Observable<any> | undefined) {
+    changes?.pipe(
+      takeUntil(this.compDest$),
       map((val) => {
         return !!val;
       }),
       distinctUntilChanged(),
     ).subscribe(
       {
-        next: (result) => this.onValueChange(result),
-        error: (err) => this.removeOverlay(),
+        next: (result) => {
+          this.onValueChange(result)
+        },
+        error: (err) => {
+          this.removeOverlay()
+        },
         complete: () => {
-          console.log("completed")
           this.removeOverlay()
         }
       }
@@ -99,28 +121,30 @@ export class NgBusyWatchDirective implements OnChanges, OnDestroy {
   }
 
   onValueChange(incoming: boolean | any) {
-    console.log('running', incoming)
     if (incoming) {
-      if (this.hostElement) {
-        this.setGridAreaOneOne(this.hostElement);
-      }
-      if (this.parentElement) {
-        this.renderer.setStyle(this.parentElement, 'display', 'grid');
-      }
-      this.overlayComp = this.vcr.createComponent(BusyOverlayComponent);
-      if (this.customConfig) {
-        this.overlayComp.instance.showSpinner = this.customConfig.showSpinner ??  this.bs.busyConfig.showSpinner;
-        this.overlayComp.instance.loadingText = this.customConfig.message ?? this.bs.busyConfig.message;
-        this.overlayComp.instance.extraCssClass = this.customConfig.extraCssClass ??
-          (this.bs.busyConfig.extraCssClass ?? '');
-      }
-
-      if (this.overlayComp?.location?.nativeElement) {
-        this.addStyleToOverlay(this.overlayComp.location.nativeElement);
-      }
-
+      this.addOverlay();
     } else {
       this.removeOverlay();
+    }
+  }
+
+  addOverlay() {
+    if (this.hostElement) {
+      this.setGridAreaOneOne(this.hostElement);
+    }
+    if (this.parentElement) {
+      this.renderer.setStyle(this.parentElement, 'display', 'grid');
+    }
+    this.overlayComp = this.vcr.createComponent(BusyOverlayComponent);
+    if (this.customConfig) {
+      this.overlayComp.instance.showSpinner = this.customConfig.showSpinner ??  this.bs.busyConfig.showSpinner;
+      this.overlayComp.instance.loadingText = this.customConfig.message ?? this.bs.busyConfig.message;
+      this.overlayComp.instance.extraCssClass = this.customConfig.extraCssClass ??
+        (this.bs.busyConfig.extraCssClass ?? '');
+    }
+
+    if (this.overlayComp?.location?.nativeElement) {
+      this.addStyleToOverlay(this.overlayComp.location.nativeElement);
     }
   }
 
@@ -140,11 +164,11 @@ export class NgBusyWatchDirective implements OnChanges, OnDestroy {
     return style ? style : 'initial';
   }
 
-  getParentOriginalStyle(ele: HTMLElement | null): string | undefined {
+  getParentOriginalStyle(ele?: HTMLElement | null): string | undefined {
     return ele?.style?.display;
   }
 
-  saveHostGridStyle(hostEle: HTMLElement): void {
+  saveHostGridStyle(hostEle?: HTMLElement | null): void {
     if (hostEle) {
       this.hostOriginalColumnEnd = hostEle.style?.gridColumnEnd;
       this.hostOriginalColumnStart = hostEle.style?.gridColumnStart;
@@ -155,7 +179,7 @@ export class NgBusyWatchDirective implements OnChanges, OnDestroy {
 
   addStyleToOverlay(ele: any): void {
     this.renderer.setStyle(ele, 'background-color', '#eeeeeedb');
-    this.renderer.setStyle(ele, 'z-index', 9999);
+    this.renderer.setStyle(ele, 'z-index', 10);
     this.setGridAreaOneOne(ele);
   }
 
@@ -171,28 +195,16 @@ export class NgBusyWatchDirective implements OnChanges, OnDestroy {
   resetHostGridStyle(hostEle: HTMLElement): void {
     this.removeHostGridStyle(hostEle);
     if (this.hostOriginalRowStart !== '') {
-      this.renderer.setStyle(
-        hostEle,
-        'grid-row-start',
-        this.hostOriginalRowStart
-      );
+      this.renderer.setStyle(hostEle, 'grid-row-start', this.hostOriginalRowStart);
     }
     if (this.hostOriginalRowEnd !== '') {
       this.renderer.setStyle(hostEle, 'grid-row-end', this.hostOriginalRowEnd);
     }
     if (this.hostOriginalColumnStart !== '') {
-      this.renderer.setStyle(
-        hostEle,
-        'grid-column-start',
-        this.hostOriginalColumnStart
-      );
+      this.renderer.setStyle(hostEle, 'grid-column-start', this.hostOriginalColumnStart);
     }
     if (this.hostOriginalColumnEnd !== '') {
-      this.renderer.setStyle(
-        hostEle,
-        'grid-column-end',
-        this.hostOriginalColumnEnd
-      );
+      this.renderer.setStyle(hostEle, 'grid-column-end', this.hostOriginalColumnEnd);
     }
   }
 
