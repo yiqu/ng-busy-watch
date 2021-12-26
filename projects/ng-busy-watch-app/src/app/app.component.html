@@ -3,51 +3,52 @@
   src="https://github.blog/wp-content/uploads/2008/12/forkme_right_green_007200.png?resize=149%2C149"
   class="attachment-full size-full " alt="Fork me on GitHub" data-recalc-dims="1">
 </a>
-<div class="container py-5">
+<div class="container pb-5">
   <div fxLayout="column" fxLayoutAlign="start center" fxLayoutGap="3rem">
-    <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="1rem">
-      <div>
-        <button mat-raised-button color="primary" (click)="actionClick(true)">Start loading</button>
-      </div>
-      <div>
-        <button mat-raised-button color="warn" (click)="actionClick(false)">Stop loading</button>
+    <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1rem" class="sticky-top">
+      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="1rem" class="w-100">
+        <div>
+          <button mat-stroked-button color="primary" (click)="actionClick(true)">Start loading (emit true)</button>
+        </div>
+        <div>
+          <button mat-stroked-button color="warn" (click)="actionClick(false)">Stop loading (emit false)</button>
+        </div>
+        <div>
+          <button mat-stroked-button color="accent" (click)="completeAll()">Complete all Observables and recreate</button>
+        </div>
       </div>
     </div>
 
     <section>
       <div class="title">
-        Using ngBusyWatch with div
+        Default
       </div>
       <div>
-        <div *ngBusyWatch="busy$">
-          <div class="example0" >
-            Cool content...
-          </div>
+        <div *ngBusyWatch="busy$" class="example0">
+          {{ testText }}
         </div>
       </div>
     </section>
 
     <section>
       <div class="title">
-        Using ngBusyWatch with customization
+        Customized text, with extra CSS class
       </div>
       <div>
-        <div *ngBusyWatch="{busy: busy$, message: 'Be patient...', extraCssClass: 'diff-color'}">
-          <div class="example1" >
-            Cool content...
-          </div>
+        <div *ngBusyWatch="{busy: busy$, message: 'Be patient...', extraCssClass: 'diff-color'}" class="example1" >
+          Added a css class selector
         </div>
       </div>
     </section>
 
     <section>
       <div class="title">
-        Using ngBusyWatch with boolean value
+        Boolean value instead of an Observable, and customized message
       </div>
       <div>
         <div *ngBusyWatch="{busy: hardcodedValue, message: 'Just a second...'}">
           <div class="example1" >
-            Cool content...
+            {{ testText }}
           </div>
         </div>
       </div>
@@ -55,12 +56,12 @@
 
     <section>
       <div class="title">
-        Using ngBusyWatch with boolean value and no customization
+        Boolean value instead of an Observable
       </div>
       <div>
         <div *ngBusyWatch="hardcodedValue">
           <div class="example1" >
-            Cool content...
+            {{ testText }}
           </div>
         </div>
       </div>
@@ -68,7 +69,7 @@
 
     <section>
       <div class="title">
-        Using ngBusyWatch with no dancing spinner SVG
+        No spinner animation
       </div>
       <div>
         <div *ngBusyWatch="{busy: busy$, showSpinner: false}">
@@ -81,7 +82,7 @@
 
     <section>
       <div class="title">
-        Using ngBusyWatch with HTML table
+        HTML Table
       </div>
       <div>
         <div *ngBusyWatch="{busy: busy$, message: 'Table loading...'}">
@@ -128,11 +129,11 @@
 
     <section>
       <div class="title">
-        Using ngBusyWatch with Material table
+        Material table
       </div>
-      <div class="example2">
-        <div *ngBusyWatch="busy$">
-          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <div>
+        <div *ngBusyWatch="busy$" class="example3">
+          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 w-100">
             <!-- Position Column -->
             <ng-container matColumnDef="position">
               <th mat-header-cell *matHeaderCellDef> No. </th>
@@ -167,7 +168,7 @@
 
     <section>
       <div class="title">
-        Using ngBusyWatch with Material tabs
+        Material tabs
       </div>
       <div>
         <div>
@@ -193,7 +194,7 @@
 
     <section>
       <div class="title">
-        Using ngBusyWatch with Material expansion panel
+        Material expansion panel
       </div>
       <div>
         <div>
@@ -208,7 +209,7 @@
               </mat-expansion-panel-header>
               <div>
                 <div *ngBusyWatch="busy$">
-                  This is the primary content of the panel.
+                  {{ testText }}
                 </div>
               </div>
             </mat-expansion-panel>
@@ -217,6 +218,50 @@
       </div>
     </section>
 
+    <section fxLayout="column" fxLayoutAlign="center center">
+      <div class="title">
+        Http request
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="1rem" class="w-100 mb-3">
+        <div>
+          <button mat-stroked-button color="primary" (click)="onHttpReuqest()">Send HTTP request</button>
+        </div>
+      </div>
+      <div>
+        <div *ngBusyWatch="httpLoading">
+          <ng-container *ngIf="httpData; else noData">
+            <div>
+              {{httpData | json}}
+            </div>
+          </ng-container>
+          <ng-template #noData>
+            No data, send a request :)
+          </ng-template>
+        </div>
+      </div>
+    </section>
 
+    <section fxLayout="column" fxLayoutAlign="center center">
+      <div class="title">
+        NgRx Selectors
+      </div>
+      <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="1rem" class="w-100 mb-3">
+        <div>
+          <button mat-stroked-button color="primary" (click)="dispatchCall()">Dispatch fetch action</button>
+        </div>
+      </div>
+      <div>
+        <div *ngBusyWatch="this.as.dataLoading$">
+          <ng-container *ngIf="(this.as.data$ | async) as data; else noData">
+            <div>
+              {{data | json}}
+            </div>
+          </ng-container>
+          <ng-template #noData>
+            No data.
+          </ng-template>
+        </div>
+      </div>
+    </section>
   </div>
 </div>

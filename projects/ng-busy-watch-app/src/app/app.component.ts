@@ -1,5 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Router } from '@angular/router';
+import { BehaviorSubject, delay, Observable, Subject } from 'rxjs';
+import { ApiService } from './shared/api.service';
 
 export interface PeriodicElement {
   name: string;
@@ -28,6 +31,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class AppComponent implements OnInit {
   title: string = '';
+  testText: string = 'The quick brown fox jumps over the lazy dog';
 
   private overAllBusyIndicator: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public busy$ = this.overAllBusyIndicator.asObservable();
@@ -36,6 +40,11 @@ export class AppComponent implements OnInit {
   dataSource = ELEMENT_DATA;
   panelOpenState = true;
   hardcodedValue = false;
+  httpData: any;
+  httpLoading: boolean = false;
+
+  constructor(private http: HttpClient, public as: ApiService) {
+  }
 
   ngOnInit(): void {
   }
@@ -61,6 +70,38 @@ export class AppComponent implements OnInit {
 
   getCurrentDate() {
     return new Date().toTimeString();
+  }
+
+  completeAll() {
+    this.overAllBusyIndicator.complete();
+    this.overAllBusyIndicator = this.getNewSubject(false);
+    this.busy$ = this.getNewObs(this.overAllBusyIndicator);
+  }
+
+  onHttpReuqest() {
+    this.httpData = undefined;
+    this.httpLoading = true;
+    this.getGitHubApiObs().subscribe(
+      (res) => {
+        this.httpData = res;
+      },
+      (err) => {
+        this.httpLoading = false;
+      },
+      () => {
+        this.httpLoading = false;
+      }
+    )
+  }
+
+  getGitHubApiObs() {
+    return this.http.get('https://api.github.com/users/defunkt').pipe(
+      delay(4000)
+    );
+  }
+
+  dispatchCall() {
+    this.as.fetchData();
   }
 
 }
