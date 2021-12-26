@@ -66,6 +66,18 @@ THE SOFTWARE.
 @angular/platform-browser
 MIT
 
+@ngrx/effects
+MIT
+
+@ngrx/router-store
+MIT
+
+@ngrx/store
+MIT
+
+@ngrx/store-devtools
+MIT
+
 bootstrap
 MIT
 The MIT License (MIT)
