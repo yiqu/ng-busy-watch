@@ -21,3 +21,8 @@ body {
 .qs {
   font-family: 'Quicksand', sans-serif;
 }
+
+.diff-color {
+  background-color: #8686cd;
+  color: #973e3e;
+}

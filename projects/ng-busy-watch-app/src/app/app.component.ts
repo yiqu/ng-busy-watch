@@ -29,16 +29,38 @@ const ELEMENT_DATA: PeriodicElement[] = [
 export class AppComponent implements OnInit {
   title: string = '';
 
-  private overAllBusyIndicator: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
+  private overAllBusyIndicator: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public busy$ = this.overAllBusyIndicator.asObservable();
 
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
   dataSource = ELEMENT_DATA;
   panelOpenState = true;
+  hardcodedValue = false;
 
   ngOnInit(): void {
-    this.overAllBusyIndicator.next(true);
   }
 
+  actionClick(start: boolean) {
+    if (start) {
+      // this.overAllBusyIndicator = this.getNewSubject(start);
+      // this.busy$ = this.getNewObs(this.overAllBusyIndicator);
+      this.overAllBusyIndicator.next(true);
+    } else {
+      this.overAllBusyIndicator.next(false);
+    }
+    this.hardcodedValue = start;
+  }
+
+  getNewSubject(val: boolean): BehaviorSubject<boolean> {
+    return new BehaviorSubject<boolean>(val);
+  }
+
+  getNewObs(sub: BehaviorSubject<boolean>) {
+    return sub.asObservable();
+  }
+
+  getCurrentDate() {
+    return new Date().toTimeString();
+  }
 
 }

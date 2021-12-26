@@ -13,9 +13,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    NgBusyWatchModule,
     FlexLayoutModule,
-    MaterialModuleBundle
+    MaterialModuleBundle,
+    NgBusyWatchModule.forRoot({
+      extraCssClass: 'cool-busy',
+      message: 'Loading..',
+      showSpinner: true
+    })
   ],
   providers: [],
 

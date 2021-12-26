@@ -3,6 +3,7 @@ import {
   ComponentRef,
   Directive,
   EmbeddedViewRef,
+  Inject,
   Input,
   OnChanges,
   OnDestroy,
@@ -11,9 +12,12 @@ import {
   TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
-import { Observable, isObservable, of, Subject } from 'rxjs';
-import { take, takeUntil } from 'rxjs/operators';
+import { Observable, isObservable, of, Subject, BehaviorSubject } from 'rxjs';
+import { distinctUntilChanged, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 import { BusyOverlayComponent } from './busy-overlay/busy-overlay.component';
+import { BusyWatchToken, BUSY_CONFIG, IBusyConfigInput, IGlobalConfig } from './ng-busy-watch.model';
+import { NgBusyWatchService } from './ng-busy-watch.service';
+import { isObject } from './ng-busy-watch.utils';
 
 @Directive({
   selector: `[ngBusyWatch]`,
@@ -21,10 +25,11 @@ import { BusyOverlayComponent } from './busy-overlay/busy-overlay.component';
 export class NgBusyWatchDirective implements OnChanges, OnDestroy {
 
   @Input('ngBusyWatch')
-  busyIndicator?: Observable<any> | boolean;
+  busyIndicator?: Observable<any> | boolean | IBusyConfigInput;
 
   view: EmbeddedViewRef<any>;
   overlayComp?: ComponentRef<BusyOverlayComponent>;
+  customConfig?: IBusyConfigInput;
 
   changes$?: Observable<any>;
   compDest$: Subject<void> = new Subject<void>();
@@ -38,12 +43,8 @@ export class NgBusyWatchDirective implements OnChanges, OnDestroy {
   hostOriginalColumnStart: any;
   hostOriginalColumnEnd: any;
 
-  constructor(
-    private renderer: Renderer2,
-    private templateRef: TemplateRef<any>,
-    private vcr: ViewContainerRef,
-    private cfr: ComponentFactoryResolver
-  ) {
+  constructor(private renderer: Renderer2, private templateRef: TemplateRef<any>, private vcr: ViewContainerRef,
+    private bs: NgBusyWatchService) {
     this.view = this.vcr.createEmbeddedView(this.templateRef);
     this.hostElement = this.view?.rootNodes[0];
     this.parentElement = this.hostElement?.parentElement;
@@ -52,47 +53,87 @@ export class NgBusyWatchDirective implements OnChanges, OnDestroy {
   }
 
   ngOnChanges() {
-    const isObs: boolean = isObservable(this.busyIndicator);
-    if (isObs) {
+    this.bs.resetBusyConfig();
+    this.compDest$.next();
+
+    if (isObservable(this.busyIndicator)) {
       this.changes$ = (this.busyIndicator as Observable<any>).pipe(
         takeUntil(this.compDest$)
       );
+    } else if (isObject(this.busyIndicator)) {
+      if (isObservable((this.busyIndicator as IBusyConfigInput).busy)) {
+        this.changes$ = ((this.busyIndicator as IBusyConfigInput).busy as Observable<any>).pipe(
+          takeUntil(this.compDest$)
+        );
+      } else {
+        const val = !!((this.busyIndicator as IBusyConfigInput).busy);
+        this.changes$ = new BehaviorSubject(val).asObservable();
+      }
+      this.customConfig = (this.busyIndicator as IBusyConfigInput);
     } else {
-      this.changes$ = of(!!this.busyIndicator).pipe(take(1));
+      const val = !!this.busyIndicator;
+      this.changes$ = new BehaviorSubject(val).asObservable();
     }
+
     if (this.changes$) {
       this.main(this.changes$);
     }
   }
 
   main(changes: Observable<any>) {
-    changes.subscribe((changed) => {
-      if (changed) {
-        if (this.hostElement) {
-          this.setGridAreaOneOne(this.hostElement);
+    changes.pipe(
+      map((val) => {
+        return !!val;
+      }),
+      distinctUntilChanged(),
+    ).subscribe(
+      {
+        next: (result) => this.onValueChange(result),
+        error: (err) => this.removeOverlay(),
+        complete: () => {
+          console.log("completed")
+          this.removeOverlay()
         }
-        if (this.parentElement) {
-          this.renderer.setStyle(this.parentElement, 'display', 'grid');
-        }
-        this.overlayComp = this.vcr.createComponent(BusyOverlayComponent);
-
-        if (this.overlayComp?.location?.nativeElement) {
-          this.addStyleToOverlay(this.overlayComp.location.nativeElement);
-        }
-      } else {
-        if (this.hostElement) {
-          this.resetHostGridStyle(this.hostElement);
-        }
-        if (this.parentElement) {
-          this.renderer.setStyle(
-            this.parentElement,
-            'display',
-            this.getInitDisplayStyleIfNullish(this.parentOriginalDisplayStyle)
-          );
-        }
-        this.overlayComp?.destroy();
       }
-    });
+    );
+  }
+
+  onValueChange(incoming: boolean | any) {
+    console.log('running', incoming)
+    if (incoming) {
+      if (this.hostElement) {
+        this.setGridAreaOneOne(this.hostElement);
+      }
+      if (this.parentElement) {
+        this.renderer.setStyle(this.parentElement, 'display', 'grid');
+      }
+      this.overlayComp = this.vcr.createComponent(BusyOverlayComponent);
+      if (this.customConfig) {
+        this.overlayComp.instance.showSpinner = this.customConfig.showSpinner ??  this.bs.busyConfig.showSpinner;
+        this.overlayComp.instance.loadingText = this.customConfig.message ?? this.bs.busyConfig.message;
+        this.overlayComp.instance.extraCssClass = this.customConfig.extraCssClass ??
+          (this.bs.busyConfig.extraCssClass ?? '');
+      }
+
+      if (this.overlayComp?.location?.nativeElement) {
+        this.addStyleToOverlay(this.overlayComp.location.nativeElement);
+      }
+
+    } else {
+      this.removeOverlay();
+    }
+  }
+
+  removeOverlay() {
+    if (this.hostElement) {
+      this.resetHostGridStyle(this.hostElement);
+    }
+    if (this.parentElement) {
+      this.renderer.setStyle(this.parentElement, 'display',
+        this.getInitDisplayStyleIfNullish(this.parentOriginalDisplayStyle)
+      );
+    }
+    this.overlayComp?.destroy();
   }
 
   getInitDisplayStyleIfNullish(style: string | undefined): string {

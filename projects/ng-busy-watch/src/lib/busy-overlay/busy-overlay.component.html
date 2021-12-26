@@ -1,14 +1,17 @@
-<div class="container loading-container">
+<div [class]="'container loading-container ' + (extraCssClass)">
   <div class="w-100">
-    <div class="graphics">
-      <div class="lds-load">
-        <div></div>
-        <div></div>
-        <div></div>
+    <ng-container *ngIf="showSpinner">
+      <div class="graphics">
+        <div class="lds-load">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
       </div>
-    </div>
+    </ng-container>
+
     <div class="text">
-      Please wait...
+      {{ loadingText }}
     </div>
   </div>
 </div>
