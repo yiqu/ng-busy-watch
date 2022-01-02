@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="" width="300" alt="NgBusy Watch">
+  <img src="https://raw.githubusercontent.com/yiqu/ng-busy-watch/master/projects/ng-busy-watch-app/src/assets/ex1.png" width="300" alt="NgBusy Watch">
   <br>
   <h1>ng-busy-watch</h1>
   <br>
-  <a href="https://www.npmjs.org/package/ngx-toastr">
+  <a href="https://www.npmjs.com/package/ng-busy-watch">
     <img src="https://badge.fury.io/js/ng-busy-watch.svg" alt="npm">
   </a>
   <a href="https://app.travis-ci.com/github/yiqu/ng-busy-watch">
