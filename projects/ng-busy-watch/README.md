@@ -4,7 +4,7 @@
   <h1>ng-busy-watch</h1>
   <br>
   <a href="https://www.npmjs.com/package/ng-busy-watch">
-    <img src="https://badge.fury.io/js/ng-busy-watch.svg" alt="npm">
+    <img src="https://img.shields.io/npm/v/ng-busy-watch.svg" alt="npm">
   </a>
   <a href="https://app.travis-ci.com/github/yiqu/ng-busy-watch">
     <img src="https://app.travis-ci.com/yiqu/ng-busy-watch.svg?branch=master" alt="travisci">
