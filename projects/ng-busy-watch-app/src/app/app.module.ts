@@ -13,6 +13,7 @@ import { appReducers } from './store/global/app.reducer';
 import { RouterState, StoreRouterConnectingModule } from '@ngrx/router-store';
 import { appEffects } from './store/global/app.effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { NgBusyModule } from 'ng-busy';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
       extraCssClass: 'cool-busy',
       message: 'Loading..',
       showSpinner: true
-    })
+    }),
+    NgBusyModule
   ],
   providers: [],
 

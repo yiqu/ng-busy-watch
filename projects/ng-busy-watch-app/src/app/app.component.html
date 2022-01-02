@@ -6,12 +6,12 @@
 <div class="container pb-5">
   <div fxLayout="column" fxLayoutAlign="start center" fxLayoutGap="3rem">
     <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1rem" class="sticky-top">
-      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="1rem" class="w-100">
+      <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="1rem" class="w-100">
         <div>
-          <button mat-stroked-button color="primary" (click)="actionClick(true)">Start loading (emit true)</button>
+          <button mat-stroked-button color="primary" (click)="actionClick(true)">Start busy (emit true)</button>
         </div>
         <div>
-          <button mat-stroked-button color="warn" (click)="actionClick(false)">Stop loading (emit false)</button>
+          <button mat-stroked-button color="warn" (click)="actionClick(false)">Stop busy (emit false)</button>
         </div>
         <div>
           <button mat-stroked-button color="accent" (click)="completeAll()">Complete all Observables and recreate</button>
