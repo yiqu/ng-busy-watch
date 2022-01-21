@@ -32,6 +32,7 @@ Latest version available for each version of Angular
 | ngx-busy-watch | Angular     |
 | ---------- | ----------- |
 | 13.x.x     | 13.x.x      |
+| 10.x.x     | < 13.x.x      |
 
 ## Install
 
