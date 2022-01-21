@@ -45,7 +45,7 @@ export class NgBusyWatchDirective implements OnChanges, OnDestroy, OnInit {
   hostOriginalColumnEnd?: string | number;
 
   constructor(private renderer: Renderer2, private templateRef: TemplateRef<any>, private vcr: ViewContainerRef,
-    private bs: NgBusyWatchService) {
+    private bs: NgBusyWatchService, private cfr: ComponentFactoryResolver) {
     this.view = this.vcr.createEmbeddedView(this.templateRef);
     this.hostElement = this.view?.rootNodes[0];
     this.parentElement = this.hostElement?.parentElement;
@@ -135,7 +135,10 @@ export class NgBusyWatchDirective implements OnChanges, OnDestroy, OnInit {
     if (this.parentElement) {
       this.renderer.setStyle(this.parentElement, 'display', 'grid');
     }
-    this.overlayComp = this.vcr.createComponent(BusyOverlayComponent);
+    const compFactory = this.cfr.resolveComponentFactory(
+      BusyOverlayComponent
+    );
+    this.overlayComp = this.vcr.createComponent(compFactory);
     if (this.customConfig) {
       this.overlayComp.instance.showSpinner = this.customConfig.showSpinner ??  this.bs.busyConfig.showSpinner;
       this.overlayComp.instance.loadingText = this.customConfig.message ?? this.bs.busyConfig.message;
